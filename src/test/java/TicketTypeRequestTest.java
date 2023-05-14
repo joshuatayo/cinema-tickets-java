@@ -1,9 +1,7 @@
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.dwp.uc.pairtest.TicketService;
 import uk.gov.dwp.uc.pairtest.TicketServiceImpl;
 import uk.gov.dwp.uc.pairtest.domain.TicketTypeRequest;
 import uk.gov.dwp.uc.pairtest.exception.InvalidPurchaseException;
@@ -24,7 +22,7 @@ public class TicketTypeRequestTest {
     @Test
     public void testPurchaseTickets() {
         // given
-        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<TicketTypeRequest>();
+        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<>();
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.ADULT, 3));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1));
@@ -36,14 +34,12 @@ public class TicketTypeRequestTest {
 
         // then
         verify(ticketServiceImpl).purchaseTickets(1L, ticketTypeRequest);
-
-
     }
 
     @Test
     public void testCalculateTotalAmountToPay() {
         // given
-        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<TicketTypeRequest>();
+        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<>();
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.ADULT, 1));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1));
@@ -60,7 +56,7 @@ public class TicketTypeRequestTest {
     @Test
     public void testCalculateNoOfSeatsToReserveRest() {
         // given
-        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<TicketTypeRequest>();
+        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<>();
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.ADULT, 3));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1));
@@ -77,7 +73,7 @@ public class TicketTypeRequestTest {
     @Test(expected = InvalidPurchaseException.class)
     public void testWhenMoreThan20TicketIsPurchasedAtATime() {
         // given
-        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<TicketTypeRequest>();
+        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<>();
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.ADULT, 19));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1));
@@ -89,10 +85,10 @@ public class TicketTypeRequestTest {
     }
 
     @Test(expected = InvalidPurchaseException.class)
-    public void testWhenAdultTicketIsNotPurchased() {
+    public void testIfAdultTicketIsNotPurchased() {
         // given
         String ticketType = TicketTypeRequest.Type.ADULT.toString();
-        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<TicketTypeRequest>();
+        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<>();
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1));
         ticketTypeRequest = new TicketTypeRequest[ticketTypeRequests.size()];
@@ -105,7 +101,7 @@ public class TicketTypeRequestTest {
     @Test(expected = InvalidPurchaseException.class)
     public void testNoOfTicketLessThanOrEqualZero() {
         // given
-        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<TicketTypeRequest>();
+        List<TicketTypeRequest> ticketTypeRequests = new ArrayList<>();
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.ADULT, 0));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2));
         ticketTypeRequests.add(new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1));
@@ -131,9 +127,9 @@ public class TicketTypeRequestTest {
         String ticketType = String.valueOf(TicketTypeRequest.Type.ADULT);
 
         // when
-        double price = TicketTypeRequest.getTicketPrice(ticketType);
+        double actualPrice = TicketTypeRequest.ticketPrice(ticketType);
 
         // then
-        assertEquals(20.0, price, 0.0);
+        assertEquals(20.0, actualPrice, 0.0);
     }
 }

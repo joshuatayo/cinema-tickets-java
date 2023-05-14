@@ -4,7 +4,6 @@ import uk.gov.dwp.uc.pairtest.exception.InvalidPurchaseException;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -35,28 +34,17 @@ public class TicketTypeRequest {
     }
 
     public static int getTotalAmountToPay(TicketTypeRequest... ticketTypeRequests) {
-        int totalAmount = 0;
-        for (TicketTypeRequest t : ticketTypeRequests) {
-            // check if Type is not INFANT
-            if(!t.getTicketType().equals(TicketTypeRequest.Type.INFANT)) {
-                double ticketPrice  = getTicketPrice(t.getTicketType().toString());
-                double amount = ticketPrice * t.getNoOfTickets();
-
-                totalAmount += amount;
-            }
-        }
-        return totalAmount;
+        return Arrays.stream(ticketTypeRequests)
+                .filter(t -> !t.getTicketType().equals(Type.INFANT))
+                .mapToInt(t -> (int) (ticketPrice(t.getTicketType().toString()) * t.getNoOfTickets()))
+                .sum();
     }
 
     public static int getNoOfSeatToReserve(TicketTypeRequest... ticketTypeRequests) {
-        int noOfReserveSeat = 0;
-        for (TicketTypeRequest t : ticketTypeRequests) {
-            // check if Type is not INFANT
-            if(!t.getTicketType().equals(TicketTypeRequest.Type.INFANT)) {
-                noOfReserveSeat += t.getNoOfTickets();
-            }
-        }
-        return noOfReserveSeat;
+        return Arrays.stream(ticketTypeRequests)
+                .filter(t -> !t.getTicketType().equals(Type.INFANT))
+                .mapToInt(TicketTypeRequest::getNoOfTickets)
+                .sum();
     }
 
     public static void noOfTicketPurchasedAtATime(TicketTypeRequest... ticketTypeRequests) {
@@ -72,23 +60,26 @@ public class TicketTypeRequest {
     }
 
     public static void adultExist(String value, TicketTypeRequest... ticketTypeRequests) {
-        // return true if Adult ticket type exist in purchased request.
-        boolean isExist = Arrays.stream(ticketTypeRequests)
-                .anyMatch(str -> Objects.equals(str.getTicketType().toString(), value));
-
-        // check isExist is false
-        if(!isExist) {
-            throw new InvalidPurchaseException("Child and Infant tickets cannot be purchased without " +
-                    "purchasing an "+ TicketTypeRequest.Type.ADULT.toString() +" ticket");
-        }
+        Arrays.stream(ticketTypeRequests)
+                .forEach((t) -> {
+                    if(!t.getTicketType().toString().equals(value)) {
+                        throw new InvalidPurchaseException(
+                                format("Child and Infant tickets cannot be purchased without purchasing an %s ticket",
+                                        TicketTypeRequest.Type.ADULT)
+                        );
+                    }
+                });
     }
 
     public static void validNoOfTicket(TicketTypeRequest... ticketTypeRequests) {
-        for (TicketTypeRequest t : ticketTypeRequests) {
-            if(t.getNoOfTickets() <= 0) {
-                throw new InvalidPurchaseException(format("Invalid number of ticket for %s", t.getTicketType()));
-            }
-        }
+        Arrays.stream(ticketTypeRequests)
+                .forEach((t) -> {
+                    if(t.getNoOfTickets() <= 0) {
+                        throw new InvalidPurchaseException(
+                                format("Invalid number of ticket for %s", t.getTicketType())
+                        );
+                    }
+                });
     }
 
     public static void validAccountId(Long accountId) {
@@ -98,15 +89,14 @@ public class TicketTypeRequest {
         }
     }
 
-    public static double getTicketPrice(String ticketType) {
+    public static double ticketPrice(String ticketType) {
         // setting price to each Type using HashMap
-        HashMap<String, Integer> addPrice = new HashMap<String, Integer>();
+        HashMap<String, Double> addPrice = new HashMap<>();
 
         // Mapping price values to Ticket Type
-        addPrice.put(TicketTypeRequest.Type.INFANT.toString(),  0);
-        addPrice.put(TicketTypeRequest.Type.CHILD.toString(),  10);
-        addPrice.put(TicketTypeRequest.Type.ADULT.toString(),  20);
-
+        addPrice.put(TicketTypeRequest.Type.INFANT.toString(),  0.0);
+        addPrice.put(TicketTypeRequest.Type.CHILD.toString(),  10.0);
+        addPrice.put(TicketTypeRequest.Type.ADULT.toString(),  20.0);
 
         // return ticket type price
         return addPrice.get(ticketType);
